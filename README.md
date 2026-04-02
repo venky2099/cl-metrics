@@ -6,6 +6,7 @@
 [![PyPI version](https://badge.fury.io/py/cl-metrics.svg)](https://badge.fury.io/py/cl-metrics)
 [![Tests](https://img.shields.io/badge/tests-21%20passed-brightgreen)](https://github.com/venky2099/cl-metrics)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19388144.svg)](https://doi.org/10.5281/zenodo.19388144)
 [![ORCID](https://img.shields.io/badge/ORCID-0000--0002--3315--7907-green)](https://orcid.org/0000-0002-3315-7907)
 
 ---
@@ -253,11 +254,11 @@ If `cl-metrics` saved you from writing another NumPy script, please cite:
   title        = {cl-metrics: Stateless Continual Learning Evaluation Metrics
                   with SNN Energy-Aware Extensions},
   year         = {2026},
-  publisher    = {Nexus Learning Labs},
-  url          = {https://github.com/venky2099/cl-metrics},
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.19388144},
+  url          = {https://doi.org/10.5281/zenodo.19388144},
   orcid        = {0000-0002-3315-7907}
-}
-```
+}```
 
 ---
 
