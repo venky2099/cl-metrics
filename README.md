@@ -247,7 +247,6 @@ pytest tests/ -v
 ## Citation
 
 If `cl-metrics` saved you from writing another NumPy script, please cite:
-
 ```bibtex
 @software{swaminathan2026clmetrics,
   author       = {Swaminathan, Venkatesh},
@@ -258,7 +257,8 @@ If `cl-metrics` saved you from writing another NumPy script, please cite:
   doi          = {10.5281/zenodo.19388144},
   url          = {https://doi.org/10.5281/zenodo.19388144},
   orcid        = {0000-0002-3315-7907}
-}```
+}
+```
 
 ---
 
