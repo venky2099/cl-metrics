@@ -10,6 +10,12 @@
 
 ---
 
+## Documentation
+
+- 📖 [Interactive FAQ](https://venky2099.github.io/cl-metrics/faq.html) — 40 questions answered, searchable by category
+
+---
+
 ## The Problem Every CIL Researcher Knows
 
 You trained your model. You have your accuracy matrix. Now you need AA, BWT, FWT, Intransigence.
