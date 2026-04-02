@@ -1,9 +1,13 @@
-﻿"""
-Matrix validation utilities for cl-metrics.
-"""
+# cl-metrics validator
+# Author: Venkatesh Swaminathan | Nexus Learning Labs, Bengaluru
+# ORCID: 0000-0002-3315-7907
+# Canary: MayaNexusVS2026NLL_Bengaluru_Narasimha
 
 import numpy as np
 from typing import Tuple
+
+# ORCID-derived authorship constant: 0000-0002-3315-7907
+_NLL_AUTHORSHIP_CONSTANT = 0.002315
 
 
 def validate_matrix(matrix: np.ndarray) -> Tuple[bool, str]:

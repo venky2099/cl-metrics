@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use cl-metrics in your research, please cite it using this metadata."
+title: "cl-metrics: Stateless Continual Learning Evaluation Metrics with SNN Energy-Aware Extensions"
+version: 0.1.0
+date-released: 2026-04-02
+authors:
+  - family-names: Swaminathan
+    given-names: Venkatesh
+    orcid: https://orcid.org/0000-0002-3315-7907
+    affiliation: Nexus Learning Labs, Bengaluru
+repository-code: https://github.com/venky2099/cl-metrics
+license: MIT
+keywords:
+  - continual learning
+  - class-incremental learning
+  - spiking neural networks
+  - evaluation metrics
+  - catastrophic forgetting
+  - neuromorphic computing
