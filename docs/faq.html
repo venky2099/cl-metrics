@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cl-metrics FAQ</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f9f7; color: #1a1a1a; min-height: 100vh; }
+.header { background: #fff; border-bottom: 1px solid #e8e8e4; padding: 1.5rem 2rem; display: flex; align-items: center; gap: 16px; }
+.header h1 { font-size: 20px; font-weight: 600; }
+.header p { font-size: 13px; color: #666; margin-top: 2px; }
+.logo { font-size: 22px; }
+.main { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+.search-row { margin-bottom: 1.25rem; }
+.search-row input { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; background: #fff; outline: none; font-family: inherit; }
+.search-row input:focus { border-color: #378ADD; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.tag { font-size: 12px; padding: 5px 13px; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; color: #555; background: #fff; transition: all 0.15s; user-select: none; }
+.tag.active { background: #E6F1FB; color: #185FA5; border-color: #B5D4F4; }
+.count { font-size: 12px; color: #888; margin-bottom: 1rem; }
+.faq-item { border: 1px solid #e8e8e4; border-radius: 10px; margin-bottom: 8px; overflow: hidden; background: #fff; }
+.faq-q { padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.faq-q:hover { background: #f9f9f7; }
+.q-left { display: flex; align-items: flex-start; gap: 10px; flex: 1; }
+.cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+.q-text { font-size: 14px; font-weight: 500; line-height: 1.5; }
+.arrow { font-size: 11px; color: #aaa; flex-shrink: 0; margin-top: 4px; transition: transform 0.2s; }
+.arrow.open { transform: rotate(180deg); }
+.faq-a { padding: 0 16px 0 34px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.2s; }
+.faq-a.open { max-height: 600px; padding: 0 16px 16px 34px; }
+.faq-a p { font-size: 13px; color: #444; line-height: 1.75; margin-bottom: 8px; }
+.faq-a p:last-child { margin-bottom: 0; }
+.faq-a code { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12px; background: #f4f4f2; padding: 1px 5px; border-radius: 4px; color: #333; }
+.faq-a pre { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12px; background: #f4f4f2; padding: 12px 14px; border-radius: 8px; margin: 8px 0; overflow-x: auto; color: #1a1a1a; line-height: 1.6; border: 1px solid #e8e8e4; }
+.none { text-align: center; padding: 3rem; color: #888; font-size: 14px; }
+.footer { text-align: center; padding: 2rem; font-size: 12px; color: #999; border-top: 1px solid #e8e8e4; margin-top: 2rem; }
+.footer a { color: #378ADD; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">📐</div>
+  <div>
+    <h1>cl-metrics — FAQ</h1>
+    <p>Everything you need to know, from basics to advanced usage</p>
+  </div>
+</div>
+<div class="main">
+  <div class="search-row"><input type="text" id="search" placeholder="Search questions..." oninput="render()" /></div>
+  <div class="filters" id="filters"></div>
+  <div class="count" id="count"></div>
+  <div id="list"></div>
+</div>
+<div class="footer">
+  Built by <a href="https://github.com/venky2099">Venkatesh Swaminathan</a> · 
+  <a href="https://github.com/venky2099/cl-metrics">GitHub</a> · 
+  Nexus Learning Labs, Bengaluru · ORCID: 0000-0002-3315-7907
+</div>
+<script>
+const CATS = {
+  basics:   { label: "Basics",         color: "#378ADD" },
+  install:  { label: "Install",        color: "#1D9E75" },
+  usage:    { label: "Usage",          color: "#534AB7" },
+  metrics:  { label: "Metrics",        color: "#BA7517" },
+  snn:      { label: "SNN",            color: "#D85A30" },
+  compare:  { label: "vs frameworks",  color: "#D4537E" },
+  advanced: { label: "Advanced",       color: "#639922" },
+  paper:    { label: "Citation",       color: "#888780" },
+};
+
+const FAQS = [
+  { cat: "basics", q: "What is cl-metrics?", a: `<p>cl-metrics is a stateless Python library that computes Continual Learning and Class-Incremental Learning evaluation metrics from a raw accuracy matrix. You give it a numpy array, it gives you AA, BWT, FWT, Intransigence, Plasticity, Stability, and Forgetting — instantly, with no framework dependency.</p>` },
+  { cat: "basics", q: "Why does this exist? Can't I just use Avalanche or PyCIL?", a: `<p>Avalanche and PyCIL are training frameworks. Their metrics live inside their training loops — you can't pass a raw numpy matrix and get numbers back. If you trained on a custom stack, SNN chip, JAX, TensorFlow, or anything non-PyTorch, you'd need to write wrapper code just to compute a mean. cl-metrics is the tool that was always missing: pure computation, no framework required.</p>` },
+  { cat: "basics", q: "What does 'stateless' mean?", a: `<p>Stateless means the library holds no training state, no model, no data loader. Every function is a pure mathematical transformation. You call it, it computes, it returns. Nothing persists between calls. This is exactly what scikit-learn.metrics does for classification — cl-metrics does the same for continual learning.</p>` },
+  { cat: "basics", q: "Who is this for?", a: `<p>Any researcher working on Continual Learning or Class-Incremental Learning who needs clean, reproducible metrics. Especially useful if you: use a custom training loop, work with SNNs or neuromorphic hardware, use JAX or TensorFlow, want metrics that match the original published formulations, or just don't want to write NumPy scripts for every paper.</p>` },
+  { cat: "basics", q: "What does the accuracy matrix look like exactly?", a: `<p>An N×N matrix where R[i, j] = accuracy on task j evaluated after training on task i.</p><pre>         Task 0   Task 1   Task 2
+After 0 [ 0.90    0.00     0.00  ]
+After 1 [ 0.72    0.85     0.00  ]
+After 2 [ 0.65    0.78     0.88  ]</pre><p>Lower triangle = retention. Upper triangle = zero-shot transfer. Values must be in [0, 1] — not percentages.</p>` },
+  { cat: "install", q: "How do I install cl-metrics?", a: `<pre>pip install cl-metrics</pre><p>Only dependency is numpy. No PyTorch, no CUDA, no heavy frameworks.</p>` },
+  { cat: "install", q: "What Python versions are supported?", a: `<p>Python 3.8 and above. Tested on 3.11. Works on Windows, Linux, and macOS.</p>` },
+  { cat: "install", q: "What are the dependencies?", a: `<p>Only numpy >= 1.21.0. That's the entire dependency tree. Install size is ~2MB.</p>` },
+  { cat: "install", q: "Can I install from source?", a: `<pre>git clone https://github.com/venky2099/cl-metrics
+cd cl-metrics
+pip install -e ".[dev]"</pre>` },
+  { cat: "install", q: "How do I run the tests?", a: `<pre>pip install pytest
+pytest tests/ -v</pre><p>All 21 tests should pass in under 1 second.</p>` },
+  { cat: "usage", q: "How do I compute all metrics at once?", a: `<pre>import numpy as np
+from cl_metrics import CLMetrics
+
+R = np.array([
+    [0.90, 0.00, 0.00],
+    [0.72, 0.85, 0.00],
+    [0.65, 0.78, 0.88],
+])
+
+m = CLMetrics(R)
+results = m.summary()</pre>` },
+  { cat: "usage", q: "How do I compute a single metric?", a: `<pre>m = CLMetrics(R)
+aa  = m.average_accuracy()
+bwt = m.backward_transfer()
+fwt = m.forward_transfer()
+pi  = m.plasticity_index()
+si  = m.stability_index()
+fm  = m.forgetting_measure()</pre>` },
+  { cat: "usage", q: "My values are in percentages (0–100), not fractions (0–1). What do I do?", a: `<p>Divide by 100 before passing to CLMetrics:</p><pre>R_percent = np.array([[90, 0, 0], [72, 85, 0], [65, 78, 88]])
+R = R_percent / 100.0
+m = CLMetrics(R)</pre>` },
+  { cat: "usage", q: "Can I weight tasks by number of classes?", a: `<p>Yes. Pass task_weights for micro-averaging by class count instead of macro-averaging by task:</p><pre>weights = np.array([10, 20, 10])
+m = CLMetrics(R, task_weights=weights)</pre>` },
+  { cat: "usage", q: "What if I only have one task?", a: `<p>Supported. BWT and FWT return 0.0 (mathematically correct). AA returns the single diagonal value.</p>` },
+  { cat: "usage", q: "Can I use this with JAX, TensorFlow, or other frameworks?", a: `<p>Yes — that's the point. cl-metrics only needs a numpy array. Convert your results first:</p><pre>import jax.numpy as jnp
+R_jax = jnp.array(...)
+R_np  = np.array(R_jax)
+m = CLMetrics(R_np)</pre>` },
+  { cat: "metrics", q: "What is Average Accuracy (AA)?", a: `<p>The weighted mean of final accuracy across all tasks after training is complete. For macro-averaging: AA = mean(R[N-1, :]). Reference: Lopez-Paz & Ranzato (2017).</p>` },
+  { cat: "metrics", q: "What is Backward Transfer (BWT)?", a: `<p>Measures how much learning new tasks changes performance on previously learned tasks. BWT = mean(R[N-1, j] - R[j, j]) for j in 0..N-2. Negative BWT = forgetting. Reference: Díaz-Rodríguez et al. (2018).</p>` },
+  { cat: "metrics", q: "What is Forward Transfer (FWT)?", a: `<p>Measures zero-shot performance on future tasks. FWT = mean(R[j-1, j]) for j in 1..N-1. Reference: Díaz-Rodríguez et al. (2018).</p>` },
+  { cat: "metrics", q: "What is Intransigence?", a: `<p>Measures the model's resistance to learning new tasks — the gap between the continual learner and an isolated oracle trained only on that task. Requires oracle accuracies. Returns 0.0 by default if none provided. Reference: Díaz-Rodríguez et al. (2018).</p>` },
+  { cat: "metrics", q: "How do I compute Intransigence with oracle accuracies?", a: `<pre>oracle = np.array([0.92, 0.89, 0.91])
+m = CLMetrics(R)
+i = m.intransigence(reference_accuracies=oracle)</pre>` },
+  { cat: "metrics", q: "What is the Plasticity Index?", a: `<p>Mean of the diagonal — how well the model learns each new task at training time. PI = mean(diag(R)). High plasticity = learns new tasks well but may forget. Reference: Serra et al. (2018).</p>` },
+  { cat: "metrics", q: "What is the Stability Index?", a: `<p>Mean retention ratio across all tasks. For each task j: retention = R[N-1, j] / R[j, j], clamped to [0, 1]. High stability = model remembers well. Reference: Serra et al. (2018).</p>` },
+  { cat: "metrics", q: "What is the Forgetting Measure?", a: `<p>For each past task, the maximum accuracy drop at any point after initial learning. Captures worst-case forgetting. Reference: Chaudhry et al. (2018).</p>` },
+  { cat: "metrics", q: "Why do I get different BWT numbers from other papers?", a: `<p>The CIL field has a reproducibility crisis — different papers use different BWT formulations. cl-metrics implements the strict Díaz-Rodríguez (2018) formulation. This is exactly why cl-metrics exists.</p>` },
+  { cat: "snn", q: "What are the SNN-specific metrics?", a: `<p>The first standardised SNN energy-aware CIL evaluation suite: Spike Rate Proxy (SRP), Spike-Rate Normalized Average Accuracy (SR-AA), Energy-Adjusted Backward Transfer (EA-BWT), and Energy-to-Error Ratio (EER).</p>` },
+  { cat: "snn", q: "How do I use the SNN metrics?", a: `<pre>from cl_metrics import SNNMetrics
+import numpy as np
+
+R = np.array([[0.90,0,0],[0.72,0.85,0],[0.65,0.78,0.88]])
+spike_rates = np.array([0.12, 0.09, 0.11])
+
+snn = SNNMetrics(R, spike_rates=spike_rates)
+snn.summary()</pre>` },
+  { cat: "snn", q: "What is the Spike Rate Proxy (SRP)?", a: `<p>Mean firing rate across all tasks as a proxy for dynamic energy consumption. SRP = mean(spike_rates). Lower SRP = lower energy cost.</p>` },
+  { cat: "snn", q: "What is SR-AA?", a: `<p>Spike-Rate Normalized Average Accuracy. SR-AA = AA × (1 - SRP). Penalizes accuracy by energy cost — makes energy efficiency visible in a single number.</p>` },
+  { cat: "snn", q: "What is EA-BWT?", a: `<p>Energy-Adjusted Backward Transfer. Weights forgetting at each task by spike rate — high-energy forgetting is penalised more than low-energy forgetting.</p>` },
+  { cat: "snn", q: "What is EER?", a: `<p>Energy-to-Error Ratio. EER = (1 - AA) / SRP. Lower is better — you want low error and low energy.</p>` },
+  { cat: "snn", q: "What format should spike_rates be in?", a: `<p>A 1D numpy array of shape (N,), one value per task, in [0, 1]. They represent the fraction of neurons firing per timestep. Divide raw counts by (num_neurons × num_timesteps) if needed.</p>` },
+  { cat: "snn", q: "What if I don't have spike rates?", a: `<p>All SNN-specific methods return None gracefully. All standard CL metrics still work normally. SNNMetrics without spike_rates behaves identically to CLMetrics.</p>` },
+  { cat: "compare", q: "Why not use Avalanche's standalone metrics?", a: `<p>Avalanche's metric classes are designed to ingest label tensors step by step through a simulated data stream. If you already have a finished accuracy matrix, you'd need to write dummy stream iterators. cl-metrics eliminates that entirely.</p>` },
+  { cat: "compare", q: "Is cl-metrics a replacement for Avalanche?", a: `<p>No. Avalanche is a full training framework. cl-metrics is purely a metric computation library. You can use both: train with Avalanche, export your matrix, compute metrics with cl-metrics for canonical reproducible numbers.</p>` },
+  { cat: "compare", q: "Why not just write my own NumPy script?", a: `<p>You've probably already done that — for every paper. Each custom script drifts slightly from canonical formulations, making fair comparison impossible. cl-metrics is unit-tested against published formulations.</p>` },
+  { cat: "compare", q: "Does cl-metrics work with SpikingJelly?", a: `<p>Yes. SpikingJelly handles SNN training. After each task, log per-task accuracies and mean spike rates. Build the matrix, pass to SNNMetrics. This is exactly how the Maya Research Series (P3–P7) used it internally.</p>` },
+  { cat: "advanced", q: "Can I compute metrics on a subset of tasks?", a: `<pre>R_first5 = R[:5, :5]
+m = CLMetrics(R_first5)</pre>` },
+  { cat: "advanced", q: "How do I validate my matrix before computing metrics?", a: `<pre>from cl_metrics.validator import validate_matrix
+is_valid, msg = validate_matrix(R)
+print(is_valid, msg)</pre>` },
+  { cat: "advanced", q: "Does cl-metrics handle TIL vs CIL?", a: `<p>The metric formulas are the same for both. The interpretation differs: in TIL the upper triangle may be non-zero; in CIL it is typically near-zero. cl-metrics computes correctly for both.</p>` },
+  { cat: "advanced", q: "Can I batch compute metrics across multiple runs?", a: `<pre>matrices = [R_seed1, R_seed2, R_seed3]
+results = [CLMetrics(R).summary() for R in matrices]
+aa_mean = np.mean([r['AA'] for r in results])
+aa_std  = np.std([r['AA'] for r in results])</pre>` },
+  { cat: "advanced", q: "Is cl-metrics thread safe?", a: `<p>Yes. All methods are stateless pure functions with no shared mutable state. Safe to call from multiple threads simultaneously.</p>` },
+  { cat: "advanced", q: "What is the NLL_PRECISION_CONSTANT in the code?", a: `<p>An ORCID-derived authorship constant (0.002315 from ORCID 0000-0002-3315-7907) embedded as an IP protection measure. It has no effect on computation — it's a provenance marker for the Nexus Learning Labs authorship protocol used across the Maya Research Series.</p>` },
+  { cat: "advanced", q: "I found a metric formulation that differs from what's implemented. What do I do?", a: `<p>Open a GitHub issue with the paper reference, the formula, and the specific difference. Correctness over convenience — if the canonical formulation differs from what's implemented, it will be fixed.</p>` },
+  { cat: "paper", q: "How do I cite cl-metrics?", a: `<pre>@software{swaminathan2026clmetrics,
+  author  = {Swaminathan, Venkatesh},
+  title   = {cl-metrics: Stateless Continual Learning
+             Evaluation Metrics with SNN Energy-Aware Extensions},
+  year    = {2026},
+  url     = {https://github.com/venky2099/cl-metrics},
+  orcid   = {0000-0002-3315-7907}
+}</pre>` },
+  { cat: "paper", q: "Is there a paper I can cite?", a: `<p>A JOSS (Journal of Open Source Software) paper is in preparation. Until published, please cite the GitHub repository using the BibTeX above. A Zenodo DOI will be added shortly for timestamped archival citation.</p>` },
+  { cat: "paper", q: "What is the Maya Research Series that cl-metrics was validated against?", a: `<p>A 7-paper neuromorphic SNN continual learning benchmark grounding Advaita Vedantic cognitive philosophy as computational mechanisms, tested on Split-CIFAR-10 and Split-CIFAR-100 CIL. Published on Zenodo by Venkatesh Swaminathan, Nexus Learning Labs, Bengaluru. cl-metrics was extracted from the internal evaluation code used across P3–P7.</p>` },
+];
+
+let activeTag = "all";
+
+function render() {
+  const q = document.getElementById("search").value.toLowerCase();
+  const filtered = FAQS.filter(f => {
+    const matchCat = activeTag === "all" || f.cat === activeTag;
+    const matchQ = !q || f.q.toLowerCase().includes(q) || f.a.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+  document.getElementById("count").textContent = filtered.length + " question" + (filtered.length !== 1 ? "s" : "");
+  const list = document.getElementById("list");
+  if (!filtered.length) { list.innerHTML = '<div class="none">No questions match your search.</div>'; return; }
+  list.innerHTML = filtered.map((f, i) => `
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(${i})">
+        <div class="q-left">
+          <div class="cat-dot" style="background:${CATS[f.cat].color}"></div>
+          <span class="q-text">${f.q}</span>
+        </div>
+        <span class="arrow" id="arr${i}">▼</span>
+      </div>
+      <div class="faq-a" id="ans${i}">${f.a}</div>
+    </div>
+  `).join("");
+}
+
+function toggle(i) {
+  const a = document.getElementById("ans" + i);
+  const arr = document.getElementById("arr" + i);
+  const isOpen = a.classList.contains("open");
+  document.querySelectorAll(".faq-a").forEach(el => el.classList.remove("open"));
+  document.querySelectorAll(".arrow").forEach(el => el.classList.remove("open"));
+  if (!isOpen) { a.classList.add("open"); arr.classList.add("open"); }
+}
+
+function buildFilters() {
+  const f = document.getElementById("filters");
+  const all = document.createElement("div");
+  all.className = "tag active"; all.textContent = "All";
+  all.onclick = () => setTag("all", all);
+  f.appendChild(all);
+  Object.entries(CATS).forEach(([key, val]) => {
+    const t = document.createElement("div");
+    t.className = "tag";
+    t.innerHTML = `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${val.color};margin-right:5px;vertical-align:middle"></span>${val.label}`;
+    t.onclick = () => setTag(key, t);
+    f.appendChild(t);
+  });
+}
+
+function setTag(key, el) {
+  activeTag = key;
+  document.querySelectorAll(".tag").forEach(t => t.classList.remove("active"));
+  el.classList.add("active");
+  render();
+}
+
+buildFilters();
+render();
+</script>
+</body>
+</html>
